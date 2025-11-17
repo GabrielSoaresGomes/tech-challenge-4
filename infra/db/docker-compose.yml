@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: tech_challenge_4_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: tech_user
+      POSTGRES_PASSWORD: tech_password
+      POSTGRES_DB: tech_challenge
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
