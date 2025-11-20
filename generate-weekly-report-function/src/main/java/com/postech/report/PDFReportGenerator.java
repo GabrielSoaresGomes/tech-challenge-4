@@ -1,22 +1,21 @@
 package com.postech.report;
 
+import com.lowagie.text.Font;
 import com.postech.domain.Feedback;
 import com.postech.dto.WeeklyReportDTO;
 import com.lowagie.text.*;
-import com.lowagie.text.pdf.*;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
 
-import jakarta.enterprise.context.ApplicationScoped;
-
-import java.awt.Color;
-
+import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.time.format.DateTimeFormatter;
 
-@ApplicationScoped
 public class PDFReportGenerator {
 
     public byte[] generateReport(WeeklyReportDTO report) {
-        Document document = new Document();
+        Document document = new Document(PageSize.A4);
 
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -26,10 +25,23 @@ public class PDFReportGenerator {
 
             Font titleFont = new Font(Font.HELVETICA, 18, Font.BOLD);
             Font headerFont = new Font(Font.HELVETICA, 14, Font.BOLD);
-            Font normalFont = new Font(Font.HELVETICA, 12);
+            Font normalFont = new Font(Font.HELVETICA, 12, Font.NORMAL);
 
+            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-            document.add(new Paragraph("Relatório Semanal de Feedbacks", titleFont));
+            // Título
+            Paragraph title = new Paragraph("Relatório Semanal de Feedbacks", titleFont);
+            title.setAlignment(Element.ALIGN_CENTER);
+            document.add(title);
+
+            String periodText = "Período: "
+                    + report.periodStart().format(fmt)
+                    + " até "
+                    + report.periodEnd().format(fmt);
+            Paragraph period = new Paragraph(periodText, normalFont);
+            period.setAlignment(Element.ALIGN_CENTER);
+            document.add(period);
+
             document.add(Chunk.NEWLINE);
 
             // ============================================================
@@ -45,12 +57,12 @@ public class PDFReportGenerator {
             addHeaderCell(table, "Urgência");
             addHeaderCell(table, "Data de Envio");
 
-            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            DateTimeFormatter feedbackDateFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
             for (Feedback f : report.feedbackList()) {
                 table.addCell(new PdfPCell(new Phrase(f.description, normalFont)));
                 table.addCell(new PdfPCell(new Phrase(f.urgency ? "Urgente" : "Não urgente", normalFont)));
-                table.addCell(new PdfPCell(new Phrase(f.sendDate.format(fmt), normalFont)));
+                table.addCell(new PdfPCell(new Phrase(f.sendDate.format(feedbackDateFmt), normalFont)));
             }
 
             document.add(table);
@@ -100,7 +112,6 @@ public class PDFReportGenerator {
 
         } catch (Exception e) {
             throw new RuntimeException("Erro ao gerar PDF", e);
-
         } finally {
             if (document.isOpen()) {
                 document.close();
@@ -109,7 +120,8 @@ public class PDFReportGenerator {
     }
 
     private void addHeaderCell(PdfPTable table, String text) {
-        PdfPCell cell = new PdfPCell(new Phrase(text, new Font(Font.HELVETICA, 12, Font.BOLD)));
+        Font headerFont = new Font(Font.HELVETICA, 12, Font.BOLD, Color.BLACK);
+        PdfPCell cell = new PdfPCell(new Phrase(text, headerFont));
         cell.setBackgroundColor(new Color(230, 230, 230));
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
         table.addCell(cell);

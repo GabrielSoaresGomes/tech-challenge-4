@@ -1,24 +1,29 @@
 package com.postech.function;
 
+import com.postech.dto.WeeklyReportDTO;
+import com.postech.email.EmailSender;
+import com.postech.email.EmailSenderFactory;
 import com.postech.report.PDFReportGenerator;
+import com.postech.repository.FeedbackRepository;
 import com.postech.service.WeeklyReportService;
 import com.microsoft.azure.functions.ExecutionContext;
 import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.TimerTrigger;
-import jakarta.inject.Inject;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class WeeklyReportFunction {
 
-    @Inject
-    WeeklyReportService reportService;
-
-    @Inject
-    PDFReportGenerator pdfReportGenerator;
+    private static final FeedbackRepository FEEDBACK_REPOSITORY = new FeedbackRepository();
+    private static final WeeklyReportService WEEKLY_REPORT_SERVICE =
+            new WeeklyReportService(FEEDBACK_REPOSITORY);
+    private static final PDFReportGenerator PDF_REPORT_GENERATOR = new PDFReportGenerator();
+    private static final EmailSender EMAIL_SENDER = EmailSenderFactory.createFromEnv();
 
     @FunctionName("weekly-report")
     public void run(
@@ -28,17 +33,34 @@ public class WeeklyReportFunction {
             ) String timerInfo,
             final ExecutionContext context
     ) {
-        context.getLogger().info("Gerando relatório semanal...");
+        context.getLogger().info("Iniciando geração de relatório semanal...");
 
-        var report = reportService.generateWeeklyReport();
-        byte[] pdfBytes = pdfReportGenerator.generateReport(report);
-
-        Path outputPath = Paths.get("weekly-report.pdf");
         try {
+            LocalDateTime now = LocalDateTime.now();
+
+            WeeklyReportDTO report = WEEKLY_REPORT_SERVICE.generateWeeklyReport(now);
+            byte[] pdfBytes = PDF_REPORT_GENERATOR.generateReport(report);
+
+            String fileName = "weekly-report-" +
+                    LocalDate.now().format(DateTimeFormatter.ISO_DATE) + ".pdf";
+
+            Path outputPath = Path.of(fileName);
             Files.write(outputPath, pdfBytes);
-            context.getLogger().info("PDF gerado em: " + outputPath.toAbsolutePath());
-        } catch (IOException e) {
-            context.getLogger().severe("Erro ao salvar PDF: " + e.getMessage());
+
+            context.getLogger().info("Relatório semanal gerado em: " +
+                    outputPath.toAbsolutePath());
+
+            List<String> admins = List.of(
+                    "gabrielsoares221@gmail.com"
+            );
+
+            EMAIL_SENDER.sendEmail(admins, pdfBytes);
+            context.getLogger().info("Relatório semanal enviado por e-mail via provider: " +
+                    (System.getenv("EMAIL_PROVIDER") == null ? "local" : System.getenv("EMAIL_PROVIDER")));
+
+        } catch (Exception e) {
+            context.getLogger().severe("Erro ao gerar/enviar relatório semanal: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

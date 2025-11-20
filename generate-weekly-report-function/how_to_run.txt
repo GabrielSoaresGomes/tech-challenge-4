@@ -1,0 +1,13 @@
+= Dentro da pasta generate-weekly-report-function, rode o comando "azurite"
+== Se não tiver, instale o Azurite com o comando "npm install -g azurite"
+== Deixe o Azurite rodando em segundo plano
+
+= Em outro terminal, rode o comando: "docker run -d --name mailhog -p 1025:1025 -p 8025:8025 mailhog/mailhog"
+== Esse comando irá iniciar o MailHog, um servidor SMTP de teste que captura e-mails enviados para ele.
+== Você pode acessar a interface web do MailHog em http://localhost:8025 para visualizar os e-mails capturados.
+
+= Inicie o banco de dados do DockerCompose
+
+= Dentro da pasta generate-weekly-report-function, rode o comando: "./mvnw clean package"
+== Esse comando irá compilar o projeto e empacotá-lo em um arquivo JAR.
+= Depois, rode o comando: "./mvnw azure-functions:run"

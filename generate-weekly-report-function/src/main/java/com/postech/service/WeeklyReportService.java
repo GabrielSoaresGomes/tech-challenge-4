@@ -4,42 +4,47 @@ import com.postech.domain.Feedback;
 import com.postech.dto.WeeklyAggregationsDTO;
 import com.postech.dto.WeeklyReportDTO;
 import com.postech.repository.FeedbackRepository;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
-@ApplicationScoped
 public class WeeklyReportService {
 
-    @Inject
-    FeedbackRepository repository;
+    private final FeedbackRepository feedbackRepository;
 
-    public WeeklyReportDTO generateWeeklyReport() {
+    public WeeklyReportService(FeedbackRepository feedbackRepository) {
+        this.feedbackRepository = feedbackRepository;
+    }
 
-        LocalDateTime end = LocalDateTime.now();
+    public WeeklyReportDTO generateWeeklyReport(LocalDateTime now) {
+        LocalDateTime end = now;
         LocalDateTime start = end.minusDays(7);
 
-        List<Feedback> feedbacks = repository.findByDateRange(start, end);
+        List<Feedback> feedbacks = feedbackRepository.findBetween(start, end);
 
-        Map<String, Long> perDay = feedbacks.stream()
+        // Quantidade por dia (formatando data)
+        DateTimeFormatter dayFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        Map<String, Long> countPerDay = feedbacks.stream()
                 .collect(Collectors.groupingBy(
-                        f -> f.sendDate.toLocalDate().toString(),
+                        f -> f.sendDate.toLocalDate().format(dayFmt),
+                        TreeMap::new,
                         Collectors.counting()
                 ));
 
-        Map<String, Long> perUrgency = feedbacks.stream()
+        // Quantidade por urgência
+        Map<String, Long> countPerUrgency = feedbacks.stream()
                 .collect(Collectors.groupingBy(
-                        f -> f.urgency ? "Urgente" : "Não urgente",
+                        f -> f.urgency ? "URGENTE" : "NÃO URGENTE",
+                        LinkedHashMap::new,
                         Collectors.counting()
                 ));
 
-        WeeklyAggregationsDTO agg = new WeeklyAggregationsDTO(perDay, perUrgency);
+        WeeklyAggregationsDTO aggregations = new WeeklyAggregationsDTO(countPerDay, countPerUrgency);
 
-        return new WeeklyReportDTO(feedbacks, agg);
+        return new WeeklyReportDTO(feedbacks, aggregations, start, end);
     }
 }
