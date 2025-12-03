@@ -1,5 +1,6 @@
 package com.postech.repository;
 
+import com.postech.db.DatabaseConnector;
 import com.postech.domain.Feedback;
 
 import java.sql.*;
@@ -9,28 +10,10 @@ import java.util.List;
 
 public class FeedbackRepository {
 
-    private final String url;
-    private final String user;
-    private final String password;
+    private final DatabaseConnector dbConnector;
 
-    public FeedbackRepository() {
-        this.url = getEnvOrDefault("DB_URL", "jdbc:postgresql://localhost:5432/tech_challenge");
-        this.user = getEnvOrDefault("DB_USER", "tech_user");
-        this.password = getEnvOrDefault("DB_PASSWORD", "tech_password");
-
-        try {
-            Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("PostgreSQL driver não encontrado", e);
-        }
-    }
-
-    private String getEnvOrDefault(String key, String defaultValue) {
-        String value = System.getenv(key);
-        if (value == null || value.isBlank()) {
-            return defaultValue;
-        }
-        return value;
+    public FeedbackRepository(DatabaseConnector dbConnector) {
+        this.dbConnector = dbConnector;
     }
 
     public List<Feedback> findBetween(LocalDateTime start, LocalDateTime end) {
@@ -43,7 +26,7 @@ public class FeedbackRepository {
 
         List<Feedback> result = new ArrayList<>();
 
-        try (Connection conn = DriverManager.getConnection(url, user, password);
+        try (Connection conn = dbConnector.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setTimestamp(1, Timestamp.valueOf(start));

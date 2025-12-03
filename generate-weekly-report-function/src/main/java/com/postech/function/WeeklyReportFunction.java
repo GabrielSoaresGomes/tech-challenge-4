@@ -1,8 +1,11 @@
 package com.postech.function;
 
+import com.postech.db.DatabaseConnector;
 import com.postech.dto.WeeklyReportDTO;
 import com.postech.email.EmailSender;
 import com.postech.email.EmailSenderFactory;
+import com.postech.logging.AppInsightsLogger;
+import com.postech.logging.AppLogger;
 import com.postech.report.PDFReportGenerator;
 import com.postech.repository.FeedbackRepository;
 import com.postech.service.WeeklyReportService;
@@ -19,21 +22,27 @@ import java.util.List;
 
 public class WeeklyReportFunction {
 
-    private static final FeedbackRepository FEEDBACK_REPOSITORY = new FeedbackRepository();
+    private static final AppLogger LOGGER = new AppInsightsLogger();
+    private static final DatabaseConnector DB_CONNECTOR = new DatabaseConnector(LOGGER);
+    private static final FeedbackRepository FEEDBACK_REPOSITORY = new FeedbackRepository(DB_CONNECTOR);
     private static final WeeklyReportService WEEKLY_REPORT_SERVICE =
             new WeeklyReportService(FEEDBACK_REPOSITORY);
     private static final PDFReportGenerator PDF_REPORT_GENERATOR = new PDFReportGenerator();
     private static final EmailSender EMAIL_SENDER = EmailSenderFactory.createFromEnv();
 
+    static {
+        DB_CONNECTOR.testConnection();
+    }
+
     @FunctionName("weekly-report")
     public void run(
             @TimerTrigger(
                     name = "timerInfo",
-                    schedule = "0/10 * * * * *"
+                    schedule = "%WEEKLY_REPORT_CRON%"
             ) String timerInfo,
             final ExecutionContext context
     ) {
-        context.getLogger().info("Iniciando geração de relatório semanal...");
+        LOGGER.info("Iniciando geração de relatório semanal...");
 
         try {
             LocalDateTime now = LocalDateTime.now();
@@ -47,20 +56,21 @@ public class WeeklyReportFunction {
             Path outputPath = Path.of(fileName);
             Files.write(outputPath, pdfBytes);
 
-            context.getLogger().info("Relatório semanal gerado em: " +
-                    outputPath.toAbsolutePath());
+            LOGGER.info("Arquivo do relatório semanal gerado com sucesso!");
 
             List<String> admins = List.of(
                     "gabrielsoares221@gmail.com"
             );
 
+            LOGGER.info("Enviando relatório semanal por e-mail para administradores: " + String.join(", ", admins));
+
             EMAIL_SENDER.sendEmail(admins, pdfBytes);
-            context.getLogger().info("Relatório semanal enviado por e-mail via provider: " +
+
+            LOGGER.info("Relatório semanal enviado por e-mail via provider: " +
                     (System.getenv("EMAIL_PROVIDER") == null ? "local" : System.getenv("EMAIL_PROVIDER")));
 
         } catch (Exception e) {
-            context.getLogger().severe("Erro ao gerar/enviar relatório semanal: " + e.getMessage());
-            e.printStackTrace();
+            LOGGER.error("Erro ao gerar/enviar relatório semanal: " + e.getMessage(), e);
         }
     }
 }
