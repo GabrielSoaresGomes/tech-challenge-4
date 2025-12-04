@@ -3,7 +3,8 @@
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "java",
-    "APPLICATIONINSIGHTS_CONNECTION_STRING": "InstrumentationKey=c23d4a4f-4a62-4a6a-b40c-47159907ce27;IngestionEndpoint=https://brazilsouth-1.in.applicationinsights.azure.com/;LiveEndpoint=https://brazilsouth.livediagnostics.monitor.azure.com/;ApplicationId=054b091a-0fa8-4119-aeb9-3a44bb0bb1b7",
+    "APPLICATIONINSIGHTS_CONNECTION_STRING": "InstrumentationKey=null;IngestionEndpoint=null;LiveEndpoint=null;ApplicationId=null",
+    "APPINSIGHTS_INSTRUMENTATIONKEY": "null",
     "LOG_DESTINATION": "all",
     "WEEKLY_REPORT_CRON": "*/30 * * * * *",
 
@@ -12,6 +13,9 @@
     "DB_PASSWORD": "tech_password",
 
     "EMAIL_PROVIDER": "local",
+
+    "ACS_CONNECTION_STRING": "endpoint=null/;accesskey=null",
+    "ACS_SENDER_ADDRESS": "DoNotReply@null.azurecomm.net",
 
     "SMTP_HOST": "localhost",
     "SMTP_PORT": "1025",

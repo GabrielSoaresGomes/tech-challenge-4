@@ -14,3 +14,11 @@
 = Dentro da pasta generate-weekly-report-function, rode o comando: "./mvnw clean package"
 == Esse comando irá compilar o projeto e empacotá-lo em um arquivo JAR.
 = Depois, rode o comando: "./mvnw azure-functions:run"
+
+
+Para ter a function na azure, deve-se criar ela pelo portal da azure.
+Após isso, configura o pom.xml da function alterando os dados para a nova function criada no profile de prod.
+
+
+./mvnw clean package -Pdev
+./mvnw azure-functions:deploy -Pdev

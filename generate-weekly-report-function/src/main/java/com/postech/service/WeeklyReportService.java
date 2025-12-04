@@ -25,7 +25,6 @@ public class WeeklyReportService {
 
         List<Feedback> feedbacks = feedbackRepository.findBetween(start, end);
 
-        // Quantidade por dia (formatando data)
         DateTimeFormatter dayFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         Map<String, Long> countPerDay = feedbacks.stream()
@@ -35,7 +34,6 @@ public class WeeklyReportService {
                         Collectors.counting()
                 ));
 
-        // Quantidade por urgência
         Map<String, Long> countPerUrgency = feedbacks.stream()
                 .collect(Collectors.groupingBy(
                         f -> f.urgency ? "URGENTE" : "NÃO URGENTE",

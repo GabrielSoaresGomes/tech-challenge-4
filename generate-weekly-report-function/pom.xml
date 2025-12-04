@@ -12,7 +12,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>17</java.version>
+        <java.version>21</java.version>
 
         <azure.functions.maven.plugin.version>1.37.1</azure.functions.maven.plugin.version>
         <azure.functions.java.library.version>3.1.0</azure.functions.java.library.version>
@@ -84,12 +84,12 @@
                 <artifactId>azure-functions-maven-plugin</artifactId>
                 <version>${azure.functions.maven.plugin.version}</version>
                 <configuration>
-                    <resourceGroup>local-dev-rg</resourceGroup>
-                    <appName>${functionAppName}</appName>
-                    <region>brazilsouth</region>
+                    <resourceGroup>${azure.functions.resourceGroup}</resourceGroup>
+                    <appName>${azure.functions.appName}</appName>
+                    <region>${azure.functions.region}</region>
 
                     <runtime>
-                        <os>windows</os>
+                        <os>${azure.functions.os}</os>
                         <javaVersion>${java.version}</javaVersion>
                     </runtime>
                 </configuration>
@@ -107,4 +107,38 @@
 
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>local</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <azure.functions.resourceGroup>rg-local-dummy</azure.functions.resourceGroup>
+                <azure.functions.appName>func-local-dummy</azure.functions.appName>
+                <azure.functions.region>brazilsouth</azure.functions.region>
+                <azure.functions.os>windows</azure.functions.os>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>dev</id>
+            <properties>
+                <azure.functions.resourceGroup>rg-tech-challenge</azure.functions.resourceGroup>
+                <azure.functions.appName>func-tech-challenge-weekly-report</azure.functions.appName>
+                <azure.functions.region>brazilsouth</azure.functions.region>
+                <azure.functions.os>linux</azure.functions.os>
+            </properties>
+        </profile>
+
+        <profile> <!-- Mudar quando criarmos a function no ambiente definitio -->
+            <id>prod</id>
+            <properties>
+                <azure.functions.resourceGroup>rg-tech-challenge-prod</azure.functions.resourceGroup>
+                <azure.functions.appName>func-tech-challenge-weekly-report-prod</azure.functions.appName>
+                <azure.functions.region>brazilsouth</azure.functions.region>
+                <azure.functions.os>linux</azure.functions.os>
+            </properties>
+        </profile>
+    </profiles>
 </project>

@@ -21,17 +21,19 @@ public class AppInsightsLogger implements AppLogger {
     private final LogDestination destination;
 
     public AppInsightsLogger() {
-        TelemetryConfiguration configuration = TelemetryConfiguration.getActive();
-        String connectionString = System.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING");
-        if (connectionString != null && !connectionString.isBlank()) {
-            configuration.setConnectionString(connectionString);
+        TelemetryConfiguration configuration = TelemetryConfiguration.createDefault();
+
+        String instrumentationKey = System.getenv("APPINSIGHTS_INSTRUMENTATIONKEY");
+        if (instrumentationKey == null || instrumentationKey.isBlank()) {
+            throw new IllegalStateException("APPINSIGHTS_INSTRUMENTATIONKEY não definido");
         }
+        configuration.setInstrumentationKey(instrumentationKey);
 
         this.telemetryClient = new TelemetryClient(configuration);
 
         String mode = System.getenv("LOG_DESTINATION");
         if (mode == null) {
-            mode = "cloud"; // default
+            mode = "cloud";
         }
 
         switch (mode.toLowerCase()) {
@@ -122,16 +124,17 @@ public class AppInsightsLogger implements AppLogger {
 
         props.put("severity", severity);
         props.put("message", message);
-
-        EventTelemetry telemetry = new EventTelemetry("AppLog");
-        telemetry.getProperties().putAll(props);
-        telemetryClient.trackEvent(telemetry);
-
         if (t != null) {
             ExceptionTelemetry ex = new ExceptionTelemetry(t);
             ex.setSeverityLevel(SeverityLevel.Error);
             ex.getProperties().putAll(props);
             telemetryClient.trackException(ex);
+
+            props.put("exception", t.toString());
         }
+
+        EventTelemetry telemetry = new EventTelemetry("AppLog");
+        telemetry.getProperties().putAll(props);
+        telemetryClient.trackEvent(telemetry);
     }
 }
