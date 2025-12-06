@@ -12,6 +12,8 @@ import com.postech.service.WeeklyReportService;
 import com.microsoft.azure.functions.ExecutionContext;
 import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.TimerTrigger;
+import com.postech.storage.ReportStorage;
+import com.postech.storage.ReportStorageFactory;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,10 +31,7 @@ public class WeeklyReportFunction {
             new WeeklyReportService(FEEDBACK_REPOSITORY);
     private static final PDFReportGenerator PDF_REPORT_GENERATOR = new PDFReportGenerator();
     private static final EmailSender EMAIL_SENDER = EmailSenderFactory.createFromEnv();
-
-    static {
-        DB_CONNECTOR.testConnection();
-    }
+    private static final ReportStorage REPORT_STORAGE = ReportStorageFactory.create(LOGGER);
 
     @FunctionName("weekly-report")
     public void run(
@@ -45,18 +44,33 @@ public class WeeklyReportFunction {
         LOGGER.info("Iniciando geração de relatório semanal...");
 
         try {
+            if (!DB_CONNECTOR.testConnection()) {
+                LOGGER.warn("Banco indisponível, abortando geração do relatório.");
+                return;
+            }
+        } catch (Exception e) {
+            LOGGER.error("Falha ao testar conexão com o banco: " + e.getMessage(), e);
+            return;
+        }
+
+        try {
             LocalDateTime now = LocalDateTime.now();
 
             WeeklyReportDTO report = WEEKLY_REPORT_SERVICE.generateWeeklyReport(now);
             byte[] pdfBytes = PDF_REPORT_GENERATOR.generateReport(report);
+            LOGGER.info("Relatório semanal gerado em PDF com sucesso!");
+            String baseFileName = "weekly-report-" +
+                    now.toLocalDate().format(DateTimeFormatter.ISO_DATE) + ".pdf";
 
-            String fileName = "weekly-report-" +
-                    LocalDate.now().format(DateTimeFormatter.ISO_DATE) + ".pdf";
+            String folderPath = now.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
 
-            Path outputPath = Path.of(fileName);
-            Files.write(outputPath, pdfBytes);
+            String blobName = folderPath + "/" + baseFileName;
 
-            LOGGER.info("Arquivo do relatório semanal gerado com sucesso!");
+            LOGGER.info("Armazenando arquivo do relatório semanal no blob: " + blobName);
+
+            REPORT_STORAGE.store(pdfBytes, blobName);
+
+            LOGGER.info("Arquivo do relatório salvo com sucesso no armazenamento.");
 
             List<String> admins = List.of(
                     "gabrielsoares221@gmail.com"

@@ -17,20 +17,10 @@ public class AppInsightsLogger implements AppLogger {
         ALL
     }
 
-    private final TelemetryClient telemetryClient;
-    private final LogDestination destination;
+    private TelemetryClient telemetryClient;
+    private LogDestination destination;
 
     public AppInsightsLogger() {
-        TelemetryConfiguration configuration = TelemetryConfiguration.createDefault();
-
-        String instrumentationKey = System.getenv("APPINSIGHTS_INSTRUMENTATIONKEY");
-        if (instrumentationKey == null || instrumentationKey.isBlank()) {
-            throw new IllegalStateException("APPINSIGHTS_INSTRUMENTATIONKEY não definido");
-        }
-        configuration.setInstrumentationKey(instrumentationKey);
-
-        this.telemetryClient = new TelemetryClient(configuration);
-
         String mode = System.getenv("LOG_DESTINATION");
         if (mode == null) {
             mode = "cloud";
@@ -48,6 +38,59 @@ public class AppInsightsLogger implements AppLogger {
                 this.destination = LogDestination.CLOUD;
                 break;
         }
+
+        boolean cloudOk = initCloudTelemetryClientSafe();
+
+        if (!cloudOk && (this.destination == LogDestination.CLOUD || this.destination == LogDestination.ALL)) {
+            System.out.println("[WARN] Cloud logging desabilitado: Application Insights não configurado corretamente. Fallback para LOCAL.");
+            this.destination = LogDestination.LOCAL;
+        }
+    }
+
+    private boolean initCloudTelemetryClientSafe() {
+        try {
+            String ikey = System.getenv("APPINSIGHTS_INSTRUMENTATIONKEY");
+            if (ikey != null) {
+                ikey = ikey.trim();
+            }
+
+            if (ikey == null || ikey.isBlank() || "null".equalsIgnoreCase(ikey)) {
+                String conn = System.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING");
+                if (conn != null) {
+                    conn = conn.trim();
+                }
+                if (conn == null || conn.isBlank() || "InstrumentationKey=null".equalsIgnoreCase(conn)) {
+                    return false;
+                }
+
+                ikey = extractInstrumentationKey(conn);
+                if (ikey == null || ikey.isBlank() || "null".equalsIgnoreCase(ikey)) {
+                    return false;
+                }
+            }
+
+            TelemetryConfiguration configuration = TelemetryConfiguration.createDefault();
+            configuration.setInstrumentationKey(ikey);
+
+            this.telemetryClient = new TelemetryClient(configuration);
+            return true;
+        } catch (Exception e) {
+            System.out.println("[WARN] Falha ao inicializar TelemetryClient de Application Insights: " + e.getMessage());
+            e.printStackTrace(System.out);
+            this.telemetryClient = null;
+            return false;
+        }
+    }
+
+    private String extractInstrumentationKey(String connectionString) {
+        String[] parts = connectionString.split(";");
+        for (String part : parts) {
+            String trimmed = part.trim();
+            if (trimmed.startsWith("InstrumentationKey=")) {
+                return trimmed.substring("InstrumentationKey=".length());
+            }
+        }
+        return null;
     }
 
     @Override
@@ -89,8 +132,8 @@ public class AppInsightsLogger implements AppLogger {
             logLocal(severity, message, properties, t);
         }
 
-        if (destination == LogDestination.CLOUD || destination == LogDestination.ALL) {
-            logCloud(severity, message, properties, t);
+        if ((destination == LogDestination.CLOUD || destination == LogDestination.ALL) && telemetryClient != null) {
+            logCloudSafe(severity, message, properties, t);
         }
     }
 
@@ -113,28 +156,33 @@ public class AppInsightsLogger implements AppLogger {
         }
     }
 
-    private void logCloud(String severity,
-                          String message,
-                          Map<String, String> properties,
-                          Throwable t) {
+    private void logCloudSafe(String severity,
+                              String message,
+                              Map<String, String> properties,
+                              Throwable t) {
 
-        Map<String, String> props = properties != null
-                ? new HashMap<>(properties)
-                : new HashMap<>();
+        try {
+            Map<String, String> props = properties != null
+                    ? new HashMap<>(properties)
+                    : new HashMap<>();
 
-        props.put("severity", severity);
-        props.put("message", message);
-        if (t != null) {
-            ExceptionTelemetry ex = new ExceptionTelemetry(t);
-            ex.setSeverityLevel(SeverityLevel.Error);
-            ex.getProperties().putAll(props);
-            telemetryClient.trackException(ex);
+            props.put("severity", severity);
+            props.put("message", message);
+            props.put("source", "weekly-report");
 
-            props.put("exception", t.toString());
+            EventTelemetry telemetry = new EventTelemetry("AppLog");
+            telemetry.getProperties().putAll(props);
+            telemetryClient.trackEvent(telemetry);
+
+            if (t != null) {
+                ExceptionTelemetry ex = new ExceptionTelemetry(t);
+                ex.setSeverityLevel(SeverityLevel.Error);
+                ex.getProperties().putAll(props);
+                telemetryClient.trackException(ex);
+            }
+        } catch (Exception e) {
+            System.out.println("[WARN] Falha ao enviar log para Application Insights: " + e.getMessage());
+            e.printStackTrace(System.out);
         }
-
-        EventTelemetry telemetry = new EventTelemetry("AppLog");
-        telemetry.getProperties().putAll(props);
-        telemetryClient.trackEvent(telemetry);
     }
 }
