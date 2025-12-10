@@ -85,30 +85,32 @@
             </plugin>
 
             <plugin>
-                <groupId>com.microsoft.azure</groupId>
-                <artifactId>azure-functions-maven-plugin</artifactId>
-                <version>${azure.functions.maven.plugin.version}</version>
-                <configuration>
-                    <resourceGroup>${azure.functions.resourceGroup}</resourceGroup>
-                    <appName>${azure.functions.appName}</appName>
-                    <region>${azure.functions.region}</region>
+    <groupId>com.microsoft.azure</groupId>
+    <artifactId>azure-functions-maven-plugin</artifactId>
+    <version>${azure.functions.maven.plugin.version}</version>
+    <configuration>
+        <resourceGroup>${azure.functions.resourceGroup}</resourceGroup>
+        <appName>${azure.functions.appName}</appName>
+        <region>${azure.functions.region}</region>
 
-                    <runtime>
-                        <os>${azure.functions.os}</os>
-                        <javaVersion>${java.version}</javaVersion>
-                    </runtime>
-                </configuration>
+        <runtime>
+            <os>${azure.functions.os}</os>
+            <javaVersion>${java.version}</javaVersion>
+        </runtime>
 
-                <executions>
-                    <execution>
-                        <id>package-functions</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>package</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+        <skipInstallExtensions>true</skipInstallExtensions>
+    </configuration>
+
+    <executions>
+        <execution>
+            <id>package-functions</id>
+            <phase>package</phase>
+            <goals>
+                <goal>package</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
 
         </plugins>
     </build>
