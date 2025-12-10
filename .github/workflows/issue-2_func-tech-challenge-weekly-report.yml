@@ -11,7 +11,7 @@ on:
 
 env:
   AZURE_FUNCTIONAPP_NAME: func-tech-challenge-weekly-report # set this to your function app name on Azure
-  PACKAGE_DIRECTORY: '.' # set this to the directory which contains pom.xml file
+  PACKAGE_DIRECTORY: './generate-weekly-report-function/' # set this to the directory which contains pom.xml file
   JAVA_VERSION: '17' # set this to the java version to use
 
 jobs:
@@ -52,4 +52,5 @@ jobs:
           slot-name: 'Production'
           package: '${{ env.PACKAGE_DIRECTORY }}'
           respect-pom-xml: true
+
           
