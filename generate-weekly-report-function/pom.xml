@@ -132,7 +132,7 @@
             <id>dev</id>
             <properties>
                 <azure.functions.resourceGroup>rg-tech-challenge</azure.functions.resourceGroup>
-                <azure.functions.appName>func-tech-challenge-weekly-report</azure.functions.appName>
+                <azure.functions.appName>FA-tech-challenge-weekly-report</azure.functions.appName>
                 <azure.functions.region>brazilsouth</azure.functions.region>
                 <azure.functions.os>linux</azure.functions.os>
             </properties>
@@ -142,7 +142,7 @@
             <id>prod</id>
             <properties>
                 <azure.functions.resourceGroup>rg-tech-challenge-prod</azure.functions.resourceGroup>
-                <azure.functions.appName>func-tech-challenge-weekly-report-prod</azure.functions.appName>
+                <azure.functions.appName>FA-tech-challenge-weekly-report-prod</azure.functions.appName>
                 <azure.functions.region>brazilsouth</azure.functions.region>
                 <azure.functions.os>linux</azure.functions.os>
             </properties>

@@ -7,6 +7,7 @@
     "APPINSIGHTS_INSTRUMENTATIONKEY": "",
     "LOG_DESTINATION": "local",
     "WEEKLY_REPORT_CRON": "*/30 * * * * *",
+    "WEEKLY_REPORT_ADMINS": "gabrielsoares221@gmail.com",
 
     "REPORT_STORAGE_MODE": "none",
     "STORAGE_CONNECTION_STRING": "",

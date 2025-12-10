@@ -20,6 +20,9 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class WeeklyReportFunction {
@@ -32,6 +35,19 @@ public class WeeklyReportFunction {
     private static final PDFReportGenerator PDF_REPORT_GENERATOR = new PDFReportGenerator();
     private static final EmailSender EMAIL_SENDER = EmailSenderFactory.createFromEnv();
     private static final ReportStorage REPORT_STORAGE = ReportStorageFactory.create(LOGGER);
+
+    private List<String> getAdminEmailsFromEnv() {
+        String rawEmails = System.getenv("WEEKLY_REPORT_ADMINS");
+        if (rawEmails == null || rawEmails.isBlank()) {
+            LOGGER.warn("Variável WEEKLY_REPORT_ADMINS não definida no env, nenhum administrador configurado para receber email");
+            return Collections.emptyList();
+        }
+
+        return Arrays.stream(rawEmails.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .toList();
+    }
 
     @FunctionName("weekly-report")
     public void run(
@@ -72,16 +88,16 @@ public class WeeklyReportFunction {
 
             LOGGER.info("Arquivo do relatório salvo com sucesso no armazenamento.");
 
-            List<String> admins = List.of(
-                    "gabrielsoares221@gmail.com"
-            );
+            List<String> admins = getAdminEmailsFromEnv();
+            if (!admins.isEmpty()) {
+                LOGGER.info("Enviando relatório semanal por e-mail para administradores: " + String.join(", ", admins));
 
-            LOGGER.info("Enviando relatório semanal por e-mail para administradores: " + String.join(", ", admins));
+                EMAIL_SENDER.sendEmail(admins, pdfBytes);
 
-            EMAIL_SENDER.sendEmail(admins, pdfBytes);
-
-            LOGGER.info("Relatório semanal enviado por e-mail via provider: " +
-                    (System.getenv("EMAIL_PROVIDER") == null ? "local" : System.getenv("EMAIL_PROVIDER")));
+                String emailProvider = System.getenv("EMAIL_PROVIDER") == null ? "local" : System.getenv("EMAIL_PROVIDER");
+                LOGGER.info("Relatório semanal enviado por e-mail via provider: " + emailProvider);
+            }
+            LOGGER.info("Finalização da execução da função");
 
         } catch (Exception e) {
             LOGGER.error("Erro ao gerar/enviar relatório semanal: " + e.getMessage(), e);
