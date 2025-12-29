@@ -1,0 +1,29 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "java",
+    "APPLICATIONINSIGHTS_CONNECTION_STRING": "",
+    "APPINSIGHTS_INSTRUMENTATIONKEY": "",
+    "LOG_DESTINATION": "local",
+    "WEEKLY_REPORT_CRON": "*/30 * * * * *",
+    "WEEKLY_REPORT_ADMINS": "gabrielsoares221@gmail.com",
+
+    "REPORT_STORAGE_MODE": "none",
+    "STORAGE_CONNECTION_STRING": "",
+    "STORAGE_CONTAINER_REPORTS": "",
+
+    "DB_URL": "jdbc:postgresql://localhost:5432/tech_challenge",
+    "DB_USER": "tech_user",
+    "DB_PASSWORD": "tech_password",
+
+    "EMAIL_PROVIDER": "local",
+
+    "ACS_CONNECTION_STRING": "endpoint=null/;accesskey=null",
+    "ACS_SENDER_ADDRESS": "DoNotReply@null.azurecomm.net",
+
+    "SMTP_HOST": "localhost",
+    "SMTP_PORT": "1025",
+    "SMTP_FROM": "no-reply@local.test"
+  }
+}

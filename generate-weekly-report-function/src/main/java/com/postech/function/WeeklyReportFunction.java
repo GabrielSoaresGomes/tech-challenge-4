@@ -1,0 +1,106 @@
+package com.postech.function;
+
+import com.postech.db.DatabaseConnector;
+import com.postech.dto.WeeklyReportDTO;
+import com.postech.email.EmailSender;
+import com.postech.email.EmailSenderFactory;
+import com.postech.logging.AppInsightsLogger;
+import com.postech.logging.AppLogger;
+import com.postech.report.PDFReportGenerator;
+import com.postech.repository.FeedbackRepository;
+import com.postech.service.WeeklyReportService;
+import com.microsoft.azure.functions.ExecutionContext;
+import com.microsoft.azure.functions.annotation.FunctionName;
+import com.microsoft.azure.functions.annotation.TimerTrigger;
+import com.postech.storage.ReportStorage;
+import com.postech.storage.ReportStorageFactory;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+public class WeeklyReportFunction {
+
+    private static final AppLogger LOGGER = new AppInsightsLogger();
+    private static final DatabaseConnector DB_CONNECTOR = new DatabaseConnector(LOGGER);
+    private static final FeedbackRepository FEEDBACK_REPOSITORY = new FeedbackRepository(DB_CONNECTOR);
+    private static final WeeklyReportService WEEKLY_REPORT_SERVICE =
+            new WeeklyReportService(FEEDBACK_REPOSITORY);
+    private static final PDFReportGenerator PDF_REPORT_GENERATOR = new PDFReportGenerator();
+    private static final EmailSender EMAIL_SENDER = EmailSenderFactory.createFromEnv();
+    private static final ReportStorage REPORT_STORAGE = ReportStorageFactory.create(LOGGER);
+
+    private List<String> getAdminEmailsFromEnv() {
+        String rawEmails = System.getenv("WEEKLY_REPORT_ADMINS");
+        if (rawEmails == null || rawEmails.isBlank()) {
+            LOGGER.warn("Variável WEEKLY_REPORT_ADMINS não definida no env, nenhum administrador configurado para receber email");
+            return Collections.emptyList();
+        }
+
+        return Arrays.stream(rawEmails.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .toList();
+    }
+
+    @FunctionName("weekly-report")
+    public void run(
+            @TimerTrigger(
+                    name = "timerInfo",
+                    schedule = "%WEEKLY_REPORT_CRON%"
+            ) String timerInfo,
+            final ExecutionContext context
+    ) {
+        LOGGER.info("Iniciando geração de relatório semanal...");
+
+        try {
+            if (!DB_CONNECTOR.testConnection()) {
+                LOGGER.warn("Banco indisponível, abortando geração do relatório.");
+                return;
+            }
+        } catch (Exception e) {
+            LOGGER.error("Falha ao testar conexão com o banco: " + e.getMessage(), e);
+            return;
+        }
+
+        try {
+            LocalDateTime now = LocalDateTime.now();
+
+            WeeklyReportDTO report = WEEKLY_REPORT_SERVICE.generateWeeklyReport(now);
+            byte[] pdfBytes = PDF_REPORT_GENERATOR.generateReport(report);
+            LOGGER.info("Relatório semanal gerado em PDF com sucesso!");
+            String baseFileName = "weekly-report-" +
+                    now.toLocalDate().format(DateTimeFormatter.ISO_DATE) + ".pdf";
+
+            String folderPath = now.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+
+            String blobName = folderPath + "/" + baseFileName;
+
+            LOGGER.info("Armazenando arquivo do relatório semanal no blob: " + blobName);
+
+            REPORT_STORAGE.store(pdfBytes, blobName);
+
+            LOGGER.info("Arquivo do relatório salvo com sucesso no armazenamento.");
+
+            List<String> admins = getAdminEmailsFromEnv();
+            if (!admins.isEmpty()) {
+                LOGGER.info("Enviando relatório semanal por e-mail para administradores: " + String.join(", ", admins));
+
+                EMAIL_SENDER.sendEmail(admins, pdfBytes);
+
+                String emailProvider = System.getenv("EMAIL_PROVIDER") == null ? "local" : System.getenv("EMAIL_PROVIDER");
+                LOGGER.info("Relatório semanal enviado por e-mail via provider: " + emailProvider);
+            }
+            LOGGER.info("Finalização da execução da função");
+
+        } catch (Exception e) {
+            LOGGER.error("Erro ao gerar/enviar relatório semanal: " + e.getMessage(), e);
+        }
+    }
+}
