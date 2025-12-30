@@ -141,8 +141,8 @@
         <profile> <!-- Mudar quando criarmos a function no ambiente definitio -->
             <id>prod</id>
             <properties>
-                <azure.functions.resourceGroup>rg-tech-challenge-prod</azure.functions.resourceGroup>
-                <azure.functions.appName>FA-tech-challenge-weekly-report-prod</azure.functions.appName>
+                <azure.functions.resourceGroup>rg-tech-challenge-4</azure.functions.resourceGroup>
+                <azure.functions.appName>FA-weekly-report</azure.functions.appName>
                 <azure.functions.region>brazilsouth</azure.functions.region>
                 <azure.functions.os>linux</azure.functions.os>
             </properties>

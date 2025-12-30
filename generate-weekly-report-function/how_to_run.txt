@@ -19,6 +19,7 @@
 Para ter a function na azure, deve-se criar ela pelo portal da azure.
 Após isso, configura o pom.xml da function alterando os dados para a nova function criada no profile de prod.
 
+Para fazer o deploy de prod utiliza o -Pprod no lugar do -Pdev e selecione a inscrição do Bernardo
 
 ./mvnw clean package -Pdev
 ./mvnw azure-functions:deploy -Pdev
