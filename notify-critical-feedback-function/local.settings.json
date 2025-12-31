@@ -1,0 +1,13 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "java",
+    "ACS_CONNECTION_STRING": "",
+    "ACS_SENDER_ADDRESS": "",
+    "CRITICAL_FEEDBACK_NOTIFICATION_ADMINS": "marlon.custodio@outlook.com",
+    "EMAIL_PROVIDER": "local",
+    "LOG_DESTINATION": "all",
+    "QueueName": "critical-feedbacks"
+  }
+}
