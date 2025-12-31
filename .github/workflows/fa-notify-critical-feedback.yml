@@ -5,9 +5,6 @@ on:
     branches:
       - issue-3
       - main
-    paths:
-      - 'github/workflows/fa-notify-critical-feedback.yml'
-      - 'notify-critical-feedback-function/**'
   workflow_dispatch:
 
 env:
