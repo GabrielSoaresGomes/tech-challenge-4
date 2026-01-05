@@ -48,6 +48,7 @@ jobs:
         with:
           app-name: 'FA-weekly-report'
           slot-name: 'Production'
-          package: '${{ env.PACKAGE_DIRECTORY }}'
+          package: 'generate-weekly-report-function/target/azure-functions/${{ env.AZURE_FUNCTIONAPP_NAME }}'
           respect-pom-xml: true
+
 
