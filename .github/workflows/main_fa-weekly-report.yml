@@ -1,0 +1,55 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/azure/functions-action
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy Java project to Azure Function App - FA-weekly-report
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  AZURE_FUNCTIONAPP_NAME: FA-weekly-report # set this to your function app name on Azure
+  PACKAGE_DIRECTORY: '.' # set this to the directory which contains pom.xml file
+  JAVA_VERSION: '17' # set this to the java version to use
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write #This is required for requesting the JWT
+      contents: read #This is required for actions/checkout
+
+    steps:
+      - name: 'Checkout GitHub Action'
+        uses: actions/checkout@v4
+
+      - name: Setup Java Sdk ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v1
+        with: |+
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: 'Restore Project Dependencies Using Mvn'
+        shell: pwsh
+        run: |+
+          pushd './${{ env.PACKAGE_DIRECTORY }}'
+          mvn clean package
+          popd
+      
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_D57539E1277F45A4A5E41CA929B5D0B3 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_32410CD7ECC1457AB9034568E71D238B }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_EE971032D14E423EB43C3AE516F10A77 }}
+
+      - name: 'Run Azure Functions Action'
+        uses: Azure/functions-action@v1
+        id: fa
+        with:
+          app-name: 'FA-weekly-report'
+          slot-name: 'Production'
+          package: '${{ env.PACKAGE_DIRECTORY }}'
+          respect-pom-xml: true
+          
