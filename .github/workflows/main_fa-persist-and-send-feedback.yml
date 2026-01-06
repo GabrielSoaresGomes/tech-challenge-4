@@ -12,7 +12,7 @@ env:
   JAVA_VERSION: '17'
 
 jobs:
-  build-and-deploy-FA-persist-and-send-feedback:
+  build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
       id-token: write

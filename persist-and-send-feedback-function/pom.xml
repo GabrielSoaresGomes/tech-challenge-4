@@ -17,7 +17,7 @@
         <azure.functions.maven.plugin.version>1.37.1</azure.functions.maven.plugin.version>
         <azure.functions.java.library.version>3.1.0</azure.functions.java.library.version>
 
-        <functionAppName>persist-and-send-feedback-function</functionAppName>
+        <functionAppName>${azure.functions.appName}</functionAppName>
         <stagingDirectory>${project.build.directory}/azure-functions/${functionAppName}</stagingDirectory>
     </properties>
 
