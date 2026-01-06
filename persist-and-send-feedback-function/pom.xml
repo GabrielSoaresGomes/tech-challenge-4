@@ -120,5 +120,15 @@
                 <azure.functions.os>windows</azure.functions.os>
             </properties>
         </profile>
+
+        <profile>
+            <id>prod</id>
+            <properties>
+                <azure.functions.resourceGroup>rg-tech-challenge-4</azure.functions.resourceGroup>
+                <azure.functions.appName>FA-persist-and-send-feedback</azure.functions.appName>
+                <azure.functions.region>brazilsouth</azure.functions.region>
+                <azure.functions.os>linux</azure.functions.os>
+            </properties>
+        </profile>
     </profiles>
 </project>
