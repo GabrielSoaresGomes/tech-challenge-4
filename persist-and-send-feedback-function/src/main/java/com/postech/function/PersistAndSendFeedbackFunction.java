@@ -33,7 +33,8 @@ public class PersistAndSendFeedbackFunction {
                 name = "req",
                 methods = {HttpMethod.POST},
                 authLevel = AuthorizationLevel.ANONYMOUS,
-                dataType = "string"
+                dataType = "string",
+                route = "persist-and-send-feedback"
             ) HttpRequestMessage<String> request,
             final ExecutionContext context) {
 
@@ -59,10 +60,11 @@ public class PersistAndSendFeedbackFunction {
                 return createErrorResponse(request, HttpStatus.SERVICE_UNAVAILABLE, "Banco de dados indisponível");
             }
 
+            boolean urgency = calculateUrgency(feedbackInput.note);
             Feedback feedback = PERSISTENCE_SERVICE.persistAndSend(
                     feedbackInput.description,
                     feedbackInput.note,
-                    feedbackInput.urgency
+                    urgency
             );
 
             LOGGER.info("Feedback salvo com sucesso. ID: " + feedback.id);
@@ -109,5 +111,9 @@ public class PersistAndSendFeedbackFunction {
                     .body("Erro interno")
                     .build();
         }
+    }
+
+    private boolean calculateUrgency(int note) {
+        return note <= 3;
     }
 }
