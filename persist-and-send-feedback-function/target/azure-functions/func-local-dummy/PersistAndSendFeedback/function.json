@@ -1,0 +1,16 @@
+{
+  "scriptFile" : "../persist-and-send-feedback-function-1.0-SNAPSHOT.jar",
+  "entryPoint" : "com.postech.function.PersistAndSendFeedbackFunction.run",
+  "bindings" : [ {
+    "type" : "httpTrigger",
+    "direction" : "in",
+    "name" : "req",
+    "methods" : [ "POST" ],
+    "dataType" : "string",
+    "authLevel" : "ANONYMOUS"
+  }, {
+    "type" : "http",
+    "direction" : "out",
+    "name" : "$return"
+  } ]
+}

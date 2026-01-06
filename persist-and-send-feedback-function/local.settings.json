@@ -1,0 +1,15 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "java",
+    "LOG_DESTINATION": "local",
+
+    "DB_URL": "jdbc:postgresql://challenge-pg-server.postgres.database.azure.com:5432/tech_challenge",
+    "DB_USER": "tech_user",
+    "DB_PASSWORD": "tech_password",
+
+    "FEEDBACK_QUEUE_MODE": "azure",
+    "FEEDBACK_QUEUE_NAME": "feedback-queue"
+  }
+}

@@ -1,0 +1,13 @@
+com\postech\dto\FeedbackInputDTO.class
+com\postech\queue\FeedbackQueueSenderFactory.class
+com\postech\queue\NoopQueueSender.class
+com\postech\repository\FeedbackRepository.class
+com\postech\db\DatabaseConnector.class
+com\postech\domain\Feedback.class
+com\postech\logging\AppInsightsLogger.class
+com\postech\service\FeedbackPersistenceService.class
+com\postech\function\PersistAndSendFeedbackFunction.class
+com\postech\logging\AppLogger.class
+com\postech\queue\AzureQueueFeedbackSender.class
+com\postech\queue\FeedbackQueueSender.class
+com\postech\logging\AppInsightsLogger$LogDestination.class

@@ -1,0 +1,12 @@
+C:\git\tech-challange\tech-challenge-04\tech-challenge-4\persist-and-send-feedback-function\src\main\java\com\postech\logging\AppLogger.java
+C:\git\tech-challange\tech-challenge-04\tech-challenge-4\persist-and-send-feedback-function\src\main\java\com\postech\queue\FeedbackQueueSenderFactory.java
+C:\git\tech-challange\tech-challenge-04\tech-challenge-4\persist-and-send-feedback-function\src\main\java\com\postech\queue\NoopQueueSender.java
+C:\git\tech-challange\tech-challenge-04\tech-challenge-4\persist-and-send-feedback-function\src\main\java\com\postech\domain\Feedback.java
+C:\git\tech-challange\tech-challenge-04\tech-challenge-4\persist-and-send-feedback-function\src\main\java\com\postech\logging\AppInsightsLogger.java
+C:\git\tech-challange\tech-challenge-04\tech-challenge-4\persist-and-send-feedback-function\src\main\java\com\postech\service\FeedbackPersistenceService.java
+C:\git\tech-challange\tech-challenge-04\tech-challenge-4\persist-and-send-feedback-function\src\main\java\com\postech\queue\FeedbackQueueSender.java
+C:\git\tech-challange\tech-challenge-04\tech-challenge-4\persist-and-send-feedback-function\src\main\java\com\postech\function\PersistAndSendFeedbackFunction.java
+C:\git\tech-challange\tech-challenge-04\tech-challenge-4\persist-and-send-feedback-function\src\main\java\com\postech\dto\FeedbackInputDTO.java
+C:\git\tech-challange\tech-challenge-04\tech-challenge-4\persist-and-send-feedback-function\src\main\java\com\postech\db\DatabaseConnector.java
+C:\git\tech-challange\tech-challenge-04\tech-challenge-4\persist-and-send-feedback-function\src\main\java\com\postech\queue\AzureQueueFeedbackSender.java
+C:\git\tech-challange\tech-challenge-04\tech-challenge-4\persist-and-send-feedback-function\src\main\java\com\postech\repository\FeedbackRepository.java
