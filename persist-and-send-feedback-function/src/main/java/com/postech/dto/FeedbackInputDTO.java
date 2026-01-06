@@ -10,15 +10,11 @@ public class FeedbackInputDTO {
     @JsonProperty("note")
     public int note;
     
-    @JsonProperty("urgency")
-    public boolean urgency;
-    
     public FeedbackInputDTO() {
     }
     
-    public FeedbackInputDTO(String description, int note, boolean urgency) {
+    public FeedbackInputDTO(String description, int note) {
         this.description = description;
         this.note = note;
-        this.urgency = urgency;
     }
 }
