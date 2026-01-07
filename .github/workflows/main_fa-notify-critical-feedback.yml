@@ -36,8 +36,8 @@ jobs:
       - name: 'Restore Project Dependencies Using Mvn'
         shell: pwsh
         run: |
-          pushd '${{ env.PACKAGE_DIRECTORY }}'
-          mvn clean package
+          pushd './${{ env.PACKAGE_DIRECTORY }}'
+          mvn clean package -Pprod
           popd
       
       - name: Login to Azure
@@ -53,5 +53,5 @@ jobs:
         with:
           app-name: 'FA-weekly-report'
           slot-name: 'Production'
-          package: './${{ env.PACKAGE_DIRECTORY }}/target/azure-functions/${{ env.AZURE_FUNCTIONAPP_NAME }}'
+          package: '${{ env.PACKAGE_DIRECTORY }}/target/azure-functions/${{ env.AZURE_FUNCTIONAPP_NAME }}'
           respect-pom-xml: true
