@@ -1,17 +1,17 @@
-name: Build and deploy Java project to Azure Function App - FA-tech-challenge-weekly-report
+name: Build and deploy Java project to Azure Function App - FA-notify-critical-feedback
 
 on:
   push:
     branches:
       - main
     paths:
-      - '.github/workflows/fa-notify-critical-feedback.yml'
+      - '.github/workflows/main_fa-notify-critical-feedback.yml'
       - 'notify-critical-feedback-function/**'
 
   workflow_dispatch:
 
 env:
-  AZURE_FUNCTIONAPP_NAME: FA-tech-challenge-weekly-report # set this to your function app name on Azure
+  AZURE_FUNCTIONAPP_NAME: FA-notify-critical-feedback # set this to your function app name on Azure
   PACKAGE_DIRECTORY: './notify-critical-feedback-function'  # set this to the directory which contains pom.xml file
   JAVA_VERSION: '21' # set this to the java version to use
   JAVA_DISTRIBUTION: 'temurin' # set this to the java distribution to use
