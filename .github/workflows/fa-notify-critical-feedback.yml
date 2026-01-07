@@ -47,11 +47,11 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_32410CD7ECC1457AB9034568E71D238B }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_EE971032D14E423EB43C3AE516F10A77 }}
 
-      # - name: 'Run Azure Functions Action'
-      #   uses: Azure/functions-action@v1
-      #   id: fa
-      #   with:
-      #     app-name: '${{ env.AZURE_FUNCTIONAPP_NAME }}'
-      #     slot-name: 'Production'
-      #     package: '${{ env.PACKAGE_DIRECTORY }}'
-      #     respect-pom-xml: true
+      - name: 'Run Azure Functions Action'
+        uses: Azure/functions-action@v1
+        id: fa
+        with:
+          app-name: 'FA-weekly-report'
+          slot-name: 'Production'
+          package: '${{ env.PACKAGE_DIRECTORY }}/target/azure-functions/${{ env.AZURE_FUNCTIONAPP_NAME }}'
+          respect-pom-xml: true
