@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+    paths:
+      - '.github/workflows/main_fa-persist-and-send-feedback.yml'
+      - 'persist-and-send-feedback-function/**'
+
   workflow_dispatch:
 
 env:
@@ -50,5 +54,3 @@ jobs:
           slot-name: 'Production'
           package: 'persist-and-send-feedback-function/target/azure-functions/${{ env.AZURE_FUNCTIONAPP_NAME }}'
           respect-pom-xml: true
-
-
