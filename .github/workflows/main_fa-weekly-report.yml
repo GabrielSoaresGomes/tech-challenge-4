@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+    paths:
+      - '.github/workflows/main_fa-weekly-report.yml'
+      - 'generate-weekly-report-function/**'
   workflow_dispatch:
 
 env:
@@ -50,5 +53,6 @@ jobs:
           slot-name: 'Production'
           package: 'generate-weekly-report-function/target/azure-functions/${{ env.AZURE_FUNCTIONAPP_NAME }}'
           respect-pom-xml: true
+
 
 
