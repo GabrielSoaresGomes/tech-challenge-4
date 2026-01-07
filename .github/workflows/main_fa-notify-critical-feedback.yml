@@ -12,7 +12,7 @@ on:
 
 env:
   AZURE_FUNCTIONAPP_NAME: FA-notify-critical-feedback # set this to your function app name on Azure
-  PACKAGE_DIRECTORY: './notify-critical-feedback-function'  # set this to the directory which contains pom.xml file
+  PACKAGE_DIRECTORY: 'notify-critical-feedback-function'  # set this to the directory which contains pom.xml file
   JAVA_VERSION: '21' # set this to the java version to use
   JAVA_DISTRIBUTION: 'temurin' # set this to the java distribution to use
 
@@ -53,5 +53,5 @@ jobs:
         with:
           app-name: 'FA-weekly-report'
           slot-name: 'Production'
-          package: '${{ env.PACKAGE_DIRECTORY }}/target/azure-functions/${{ env.AZURE_FUNCTIONAPP_NAME }}'
+          package: './${{ env.PACKAGE_DIRECTORY }}/target/azure-functions/${{ env.AZURE_FUNCTIONAPP_NAME }}'
           respect-pom-xml: true
